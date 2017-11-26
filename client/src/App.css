@@ -1,0 +1,21 @@
+/*.home{
+  padding: 0 2rem;
+}*/
+body{
+  background-color: #fafafa;
+}
+a{
+  text-decoration: none;
+}
+.inner{
+  max-width: 540px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+img{
+  width: 100% !important;
+}
+.MuiGridListTile-root-71{
+  height: auto !important;
+}

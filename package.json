@@ -1,0 +1,31 @@
+{
+  "name": "update",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "concurrently \"supervisor server\" \"npm run client\"",
+    "server": "node server.js",
+    "client": "node start-client.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "body-parser": "^1.18.1",
+    "concurrently": "^3.5.0",
+    "connect-multiparty": "^2.0.0",
+    "distpicker": "^2.0.1",
+    "express": "^4.15.4",
+    "jquery": "^3.2.1",
+    "jsonwebtoken": "^8.1.0",
+    "multer": "^2.0.0-alpha.6",
+    "mysql": "^2.14.1",
+    "qiniu": "^7.0.8",
+    "react": "^16.0.0",
+    "react-router": "^4.2.0",
+    "react-router-dom": "^4.2.2"
+  },
+  "dependencies": {
+    "js-base64": "^2.3.2",
+    "socket.io": "^2.0.3"
+  }
+}
