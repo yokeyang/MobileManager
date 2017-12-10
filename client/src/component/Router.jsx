@@ -7,6 +7,7 @@ import EnhancedTable from './manage/Basic';
 import Login from './manage/Login';
 import User from './manage/User';
 import History from './manage/History';
+import { setTimeout } from 'timers';
 
 const getCookie = (name) =>{
   if (document.cookie.length>0)
@@ -22,46 +23,29 @@ const getCookie = (name) =>{
   }
   return ""
 }
-const checkCookie = () =>{
-  var username=getCookie('user')
+const checkCookie = (cname) =>{
+  var username=getCookie(cname)
   if (username!=null && username!=""){
     return true
   }else {
     return false
   }
 }
+
 const isLogin = {
-  rvalue : false,
-  user: 'man',
+  psd:checkCookie('psd'),
+  user: checkCookie('user'),
+  Smanager:checkCookie('Smanager'),
   setrvalue(cb){
-    $.ajax({
-      url: '/isLogin',
-      type: 'GET',
-      dataType: 'json',
-      async:false
-    })
-    .done((e)=> {
-      if(e.isLogin){
-        this.rvalue = true
-        this.user = e.user
-        return true
-      }
-      this.rvalue = false
-      return false
-    })
-    .fail((e)=> {
-      this.rvalue = false
-      console.log(this.rvalue);
-      return false
-    })
-    setTimeout(cb,100);
-    return this.rvalue;
+    setTimeout(cb,10)
+    return this.user
   }
 }
+
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route {...rest} render={props => (
     isLogin.setrvalue() ? (
-      <Component {...props}/>
+      <Component {...props} />
     ) : (
       <Redirect to={{
         pathname: '/Login',

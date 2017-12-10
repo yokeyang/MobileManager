@@ -40,8 +40,14 @@ class Login extends Component {
   handleSnackClose = ()=>{
     this.setState({snackopen:false})
   }
+
+  setCookie = (cname,cvalue) =>{
+    let d = new Date()
+    d.setTime(d.getTime() + (60*60*1000))
+    let expires = "expires="+d.toUTCString()
+    document.cookie = cname + "=" + cvalue + "; " + expires
+  }
   Login = () => {
-    console.log(base64.Base64.encode(this.psd.value))
     $.ajax({
       url: '/user',
       type: 'POST',
@@ -53,6 +59,9 @@ class Login extends Component {
         this.props.isLogin.setrvalue(() => {
           this.setState({ isLogin: true })
         })
+        this.setCookie('user',data.user)
+        this.setCookie('psd',data.psd)
+        this.setCookie('Smanager',data.Smanager)
         return true
       }
       this.setState({snackopen:true,snackmsg:'账号或密码错误'})

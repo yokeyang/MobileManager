@@ -4,6 +4,9 @@ import { withStyles } from 'material-ui/styles';
 import Card, { CardActions, CardContent, CardMedia } from 'material-ui/Card';
 import Button from 'material-ui/Button';
 import { GridList, GridListTile } from 'material-ui/GridList';
+import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
+import IconButton from 'material-ui/IconButton';
+import DeleteIcon from 'material-ui-icons/Delete';
 import Typography from 'material-ui/Typography';
 import ListPage from "./ListPage.jsx";
 import AjaxAction from '../AjaxAction.jsx';
@@ -61,7 +64,28 @@ class User extends Component{
           </Card>
         </GridListTile>
         <GridListTile cols = "7" style = {{height:'auto'}}>
-          <ListPage data = {this.state.data} />
+          <ListPage>
+            <TableHead>
+              <TableRow>
+                <TableCell>用户名</TableCell>
+                <TableCell numeric>密码</TableCell>
+                <TableCell numeric>用户类型</TableCell>
+                <TableCell numeric padding = "checkbox">操作</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {this.state.data.map(n => {
+                return (
+                  <TableRow key={n.id}>
+                    <TableCell>{n.user}</TableCell>
+                    <TableCell numeric>*******</TableCell>
+                    <TableCell numeric>{n.Smanager === 1?'超级管理员':'管理员'}</TableCell>
+                    <TableCell numeric><IconButton aria-label="Delete"><DeleteIcon /></IconButton></TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </ListPage>
         </GridListTile>
       </GridList>
     )

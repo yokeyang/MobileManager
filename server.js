@@ -41,13 +41,17 @@ var select = () =>{
   })
   return promise
 }
-var token,token_password
+var user,token,token_password
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.post('/postimg',multipartMiddleware,(req,res,next)=>{
-  uploadFile(req.files.file.path,req.files.file.originalFilename).then(function(value){
+  var imgData = req.body.file;
+	//过滤data:URL
+	var base64Data = imgData.replace(/^data:image\/\w+;base64,/, "");
+  uploadFile(base64Data,req.body.name).then(function(value){
+    console.log(value)
     res.json({
-      path:[`http://owmdzsjg2.bkt.clouddn.com/${req.files.file.originalFilename}`]
+      path:[`http://owmdzsjg2.bkt.clouddn.com/${req.body.name}`]
     })
   },function(value){
     return false
@@ -64,31 +68,21 @@ app.post('/getdata',(req,res) =>{
     return value
   })
 })
+
 app.post('/user', (req,res)=>{
   var con = mysql.createConnection(dboption)
   con.connect()
   con.query(`select * from manager where user = '${req.body.user}'`,(err, result, fields)=>{
     if(result.length){
       if(Base64.decode(req.body.password) == Base64.decode(result[0].password)){
-        token = jwt.sign({msg:req.body.user},req.body.password,{expiresIn: 5*60})
-        token_password = req.body.password
-        res.json({login:true})
+        res.json({login:true,user:result[0].user,psd:result[0].password,Smanager:result[0].Smanager})
         return true
       }
     }
     res.json({login:false})
   })
 })
-app.get('/isLogin',(req,res) => {
-  jwt.verify(token, token_password,(err,decoded)=>{
-    if(err){
-      res.json({error:true})
-    }else{
-      res.json({isLogin:true,user:decoded.msg})
-    }
-    return true
-  })
-})
+
 app.get('/managers',(req,res)=>{
   var con = mysql.createConnection(dboption)
   con.connect()

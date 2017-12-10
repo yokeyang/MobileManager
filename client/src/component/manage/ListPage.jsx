@@ -20,31 +20,12 @@ const styles = theme => ({
 
 
 function ListPage(props) {
-  const { classes,data } = props;
+  const { classes,children } = props;
 
   return (
     <Paper className={classes.root}>
       <Table className={classes.table}>
-        <TableHead>
-          <TableRow>
-            <TableCell>用户名</TableCell>
-            <TableCell numeric>密码</TableCell>
-            <TableCell numeric>用户类型</TableCell>
-            <TableCell numeric padding = "checkbox">操作</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map(n => {
-            return (
-              <TableRow key={n.id}>
-                <TableCell>{n.user}</TableCell>
-                <TableCell numeric>*******</TableCell>
-                <TableCell numeric>{n.Smanager === 1?'超级管理员':'管理员'}</TableCell>
-                <TableCell numeric><IconButton aria-label="Delete"><DeleteIcon /></IconButton></TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
+        {children}
       </Table>
     </Paper>
   );

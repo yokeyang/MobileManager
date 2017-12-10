@@ -13,47 +13,58 @@ import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
 import { GridList, GridListTile, GridListTileBar } from 'material-ui/GridList';
 import Dialog, {DialogActions,DialogContent} from 'material-ui/Dialog';
+import ZmCanvasCrop from './CutImage';
+var c;
 class PostPage extends Component{
   constructor(props){
     super(props);
     this.state = {
       kind:'',
-      imgUrl:[],
+      imgUrl:'',
       snackopen:false,
       snackmsg:'',
       diopen:false,
     }
   }
+
+  saveCallBack = (base64) =>{
+    if(typeof(base64) === 'string'){
+      this.setState({imgUrl:base64})
+    }
+  }
+
+  componentDidMount = () =>{
+    c = new ZmCanvasCrop({
+      fileInput: this.ipt,
+      saveBtn: this.save,
+      box_width: 200,  //剪裁容器的最大宽度
+      box_height: 300, //剪裁容器的最大高度
+      min_width: 300,  //要剪裁图片的最小宽度
+      min_height: 300  //要剪裁图片的最小高度
+    },this.saveCallBack);
+  }
+
+  FileCut = () =>{
+    console.log(this.state);
+  }
+
   onFileUpload = () =>{
-    if(this.state.imgUrl.length > 0){
-      this.setState({snackopen:true,snackmsg:'图片不超过一张'})
+    let file = this.state.imgUrl;
+    console.log(file);
+    if(file.length < 0){
+      this.setState({snackopen:true,snackmsg:'请选择图片'})
       return false
     }
-    var file = this.file.files[0]
-    if (typeof (file) === "undefined" || file.size <= 0) {
-      this.setState({snackopen:true,snackmsg:'请选择图片'})
-      return;
-    }
-    var formFile = new FormData()
-    formFile.append("action", "UploadVMKImagePath")
-    formFile.append("file", file)
     this.fetch({
       url: '/postimg',
-      data: formFile,
+      data: {file:file,name:this.ipt.files[0].name},
       type: "Post",
-      dataType: "json",
-      cache: false,
-      processData: false,
-      contentType: false,
+      dataType:'json'
     })
   }
-  onDelectimg = () =>{
-    this.file.files[0] = null
-    this.file.value = null
-    this.setState({imgUrl:[]})
-    console.log(this.file.value)
-  }
+
   onTextUpdate = () =>{
+    this.onFileUpload()
     var props = ['name','tel','address'];
     for(let item of props){
       if(!this.check({prop:item})){
@@ -121,98 +132,121 @@ class PostPage extends Component{
   render(){
     var imgUrl = this.state.imgUrl;
     return(
-      <form noValidate autoComplete = "off" className = "inner">
-        <h1 style = {{textAlign:'center'}}>DIY手机壳</h1>
-        <TextField required label="姓名" name = "姓名" margin = "normal" inputRef = {(name)=>this.name = name} />
-        <TextField required type = 'number' label="电话" name = "电话" margin = "normal" inputRef = {(tel)=>this.tel = tel} />
-        <TextField required label="地址" name = "地址" margin = "normal" inputRef = {(address)=>this.address = address} />
-        <FormControl margin = "normal">
-          <InputLabel htmlFor="kind">选择手机型号</InputLabel>
-          <Select onChange = {this.changePhone('kind')} value = {this.state.kind} input = {<Input id="kind" />}>
-            <MenuItem value = "iphone5">
-              iphone5/5s/se
-            </MenuItem>
-            <MenuItem value = "iphone6">
-              iphone6/6s/7
-            </MenuItem>
-            <MenuItem value = "iphone6p">
-              iphone6p/7p
-            </MenuItem>
-            <MenuItem value = "xiaomi6">
-              小米6
-            </MenuItem>
-            <MenuItem value = "pixel">
-              google pixel
-            </MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl margin = "normal">
-          <input onChange = {this.onFileUpload} ref = {(file) => this.file = file} style = {{display:'none'}} accept="jpg,jpeg,JPG,JPEG" id="file" multiple type="file" />
-          <label htmlFor="file">
-            <Button raised component="span">
-              Upload
-            </Button>
-          </label>
-          <GridList cellHeight={200} spacing={1} style = {{transform: 'translateZ(0)'}}>
-            {imgUrl.map((item,i) => (
-               <GridListTile key={i} height = {'auto'}>
-                 <img src={item} alt='图片' onClick = {() =>{
-                   this.setState({diopen:true})
-                 }} />
-                 <GridListTileBar
-                   title='选中图片'
-                   titlePosition="top"
-                   actionIcon={
-                     <IconButton onClick = {this.onDelectimg}>
-                       <CloseIcon color = "white" />
-                     </IconButton>
-                   }
-                   actionPosition="right"
-                 />
-               </GridListTile>
-             ))}
-          </GridList>
-          <Dialog open={this.state.diopen} onRequestClose={this.handleDialogClose} maxWidth = "md">
-          <DialogContent>
-            <img src = {this.state.imgUrl[0]} />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleDialogClose} color="primary">
-                好的
+      <GridList cols = {10} cellHeight = {'auto'}>
+        <GridListTile cols = "10">
+          <h1 style = {{textAlign:'center'}}>DIY手机壳</h1>
+        </GridListTile>
+        <GridListTile cols = "5">        
+          <form noValidate autoComplete = "off" className = "inner">
+            <TextField required label="姓名" name = "姓名" margin = "normal" inputRef = {(name)=>this.name = name} />
+            <TextField required type = 'number' label="电话" name = "电话" margin = "normal" inputRef = {(tel)=>this.tel = tel} />
+            <TextField required label="地址" name = "地址" margin = "normal" inputRef = {(address)=>this.address = address} />
+            <FormControl margin = "normal">
+              <InputLabel htmlFor="kind">选择手机型号</InputLabel>
+              <Select onChange = {this.changePhone('kind')} value = {this.state.kind} input = {<Input id="kind" />}>
+                <MenuItem value = "iphone5">
+                  iphone5/5s/se
+                </MenuItem>
+                <MenuItem value = "iphone6">
+                  iphone6/6s/7
+                </MenuItem>
+                <MenuItem value = "iphone6p">
+                  iphone6p/7p
+                </MenuItem>
+                <MenuItem value = "xiaomi6">
+                  小米6
+                </MenuItem>
+                <MenuItem value = "pixel">
+                  google pixel
+                </MenuItem>
+              </Select>
+            </FormControl>
+            <Button raised onClick = {this.onFileUpload}>提交</Button>
+
+            <Snackbar
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              open={this.state.snackopen}
+              autoHideDuration={6000}
+              onRequestClose={this.handleSnackClose}
+              SnackbarContentProps={{
+                'aria-describedby': 'message-id',
+              }}
+              message={<span id="message-id">{this.state.snackmsg}</span>}
+              action={[
+                <Button key="undo" color="accent" dense onClick={this.handleSnackClose}>
+                  知道了
+                </Button>,
+                <IconButton
+                  key="close"
+                  aria-label="Close"
+                  color="inherit"
+                  onClick={this.handleSnackClose}
+                >
+                  <CloseIcon />
+                </IconButton>,
+              ]}
+            />
+          </form>
+        </GridListTile>
+        <GridListTile cols = "5">
+          <FormControl>
+            <input type="file" id = "ipt" style = {{display:'none'}} accept="jpg,jpeg,JPG,JPEG,png,PNG" onClick = {this.FileCut} ref = {(input) => {this.ipt = input}} defaultValue="选择图片" />
+            <label htmlFor="ipt">
+              <Button raised component="span">
+                Upload
               </Button>
-            </DialogActions>
-          </Dialog>
-        </FormControl>
-        <Button raised onClick = {this.onTextUpdate}>提交</Button>
-        <Snackbar
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-          open={this.state.snackopen}
-          autoHideDuration={6000}
-          onRequestClose={this.handleSnackClose}
-          SnackbarContentProps={{
-            'aria-describedby': 'message-id',
-          }}
-          message={<span id="message-id">{this.state.snackmsg}</span>}
-          action={[
-            <Button key="undo" color="accent" dense onClick={this.handleSnackClose}>
-              知道了
-            </Button>,
-            <IconButton
-              key="close"
-              aria-label="Close"
-              color="inherit"
-              onClick={this.handleSnackClose}
-            >
-              <CloseIcon />
-            </IconButton>,
-          ]}
-        />
-      </form>
+            </label>
+          </FormControl>
+          <div id="canvas-box" ref = {(input) => {this.canvas_box = input}}></div>
+          <input onClick = {this.saveCallBack} type="button" ref = {(input) => {this.save = input}} defaultValue = "完成" />
+          <div ref = {(input) => {this.base64 = input}}></div>
+        </GridListTile>
+      </GridList>
     )
   }
 }
 
 export default PostPage;
+
+{/*
+<FormControl margin = "normal">
+  <input onChange = {this.onFileUpload} ref = {(file) => this.file = file} style = {{display:'none'}} accept="jpg,jpeg,JPG,JPEG" id="file" multiple type="file" />
+  <label htmlFor="file">
+    <Button raised component="span">
+      Upload
+    </Button>
+  </label>
+  <GridList cellHeight={200} spacing={1} style = {{transform: 'translateZ(0)'}}>
+    {imgUrl.map((item,i) => (
+      <GridListTile key={i} height = {'auto'}>
+        <img src={item} alt='图片' onClick = {() =>{
+          this.setState({diopen:true})
+        }} />
+        <GridListTileBar
+          title='选中图片'
+          titlePosition="top"
+          actionIcon={
+            <IconButton onClick = {this.onDelectimg}>
+              <CloseIcon color = "white" />
+            </IconButton>
+          }
+          actionPosition="right"
+        />
+      </GridListTile>
+    ))}
+  </GridList>
+  <Dialog open={this.state.diopen} onRequestClose={this.handleDialogClose} maxWidth = "md">
+  <DialogContent>
+    <img src = {this.state.imgUrl[0]} />
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={this.handleDialogClose} color="primary">
+        好的
+      </Button>
+    </DialogActions>
+  </Dialog>
+</FormControl>
+*/}

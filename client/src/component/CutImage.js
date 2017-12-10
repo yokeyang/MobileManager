@@ -1,10 +1,12 @@
-export default function ZmCanvasCrop(opt, saveCallBack){
+import $ from 'jquery';
+function ZmCanvasCrop(opt, saveCallBack){
 	this.init(opt);
 	this._option.crop_box_width = opt.box_width; //剪裁容器的最大宽度
 	this._option.crop_box_height = opt.box_height;  //剪裁容器的最大高度
 	this._option.crop_min_width = opt.min_width;  //要剪裁图片的最小宽度
 	this._option.crop_min_height = opt.min_height;  //要剪裁图片的最小高度
 	this._option.crop_scale = opt.min_width / opt.min_height;  //图片会按照最小宽高的比例裁剪
+	this.saveCallback = saveCallBack;
 }
 
 ZmCanvasCrop.prototype = {
@@ -24,7 +26,6 @@ ZmCanvasCrop.prototype = {
 		min_width: '',//要裁剪部分显示最小宽度
 		min_height: ''
 	},
-
 	_option : {
 		crop_box_width: '',			//图片操作区域宽限制
 		crop_box_height: '',			//图片操作区域高限制
@@ -47,10 +48,8 @@ ZmCanvasCrop.prototype = {
 	init: function(opt){
 		var self = this;
 		self._input = opt.fileInput;
-
-		self._$box = $('.canvas-box');
+		self._$box = $('#canvas-box');
 		self.readFile();
-
 		opt.saveBtn.addEventListener('click', function(){
 			self.save();
 		});
@@ -65,16 +64,14 @@ ZmCanvasCrop.prototype = {
 
 	readFile: function(){
 		var self = this;
-
 		if(typeof FileReader==='undefined'){
 		    alert("抱歉，你的浏览器不支持 FileReader");
-		    input.setAttribute('disabled','disabled');
 		}else{
 		    this._input.addEventListener('change', readFile, false);
 		}
 
 		function readFile(){
-		    var file = this.files[0];
+			var file = this.files[0];
 		    if(!/image\/\w+/.test(file.type)){
 		        alert("文件必须为图片！");
 		        return false;
@@ -322,7 +319,6 @@ ZmCanvasCrop.prototype = {
 					self._img_show.crop_height = self._img_show.min_height;
 					self._img_show.crop_width = self._img_show.crop_height / self._option.crop_scale;
 				}
-
 				//实际存储
 				if(noChangeX>=0){
 					self._save.left = noChangeX / self._img_show.scale;
@@ -374,17 +370,23 @@ ZmCanvasCrop.prototype = {
 	save: function(){
 		this.parseInt();//取整，避免出现杂边线条
 		var self = this;
-		var $result = $("<canvas width='"+ self._save.width +"' height='"+ self._save.height +"'></canvas>");
-		$('body').append($result);
-		$result[0].getContext('2d').drawImage(self._img,
-			self._save.left, self._save.top, self._save.width, self._save.height,
-			0, 0, self._save.width, self._save.height
-		);
-
+		var width = self._img_show.crop_height;
+		var height = self._img_show.crop_width;
+		var $result = $("<canvas width='"+ width +"' height='"+ height +"'></canvas>");
+		if($('#canvas-box')[0].childNodes.length<=6){
+			$('#canvas-box').append($result);
+			try{
+				$result[0].getContext('2d').drawImage(self._img,
+					self._save.left, self._save.top, self._save.width, self._save.height,
+					0, 0, width, height
+				);
+			}catch(error){
+				console.log(error);
+				alert("文件格式不对");
+			}
+		}
 		var base64Url = $result[0].toDataURL('image/jpeg');
-
-		saveCallBack && saveCallBack(base64Url);
-
+		self.saveCallback && self.saveCallback(base64Url);
 		return base64Url;
 	},
 
@@ -419,3 +421,4 @@ ZmCanvasCrop.prototype = {
 		this._img_show.crop_height = real.height * this._img_show.scale;
 	}
 }
+export default ZmCanvasCrop;
