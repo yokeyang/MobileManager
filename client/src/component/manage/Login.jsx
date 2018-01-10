@@ -48,31 +48,31 @@ class Login extends Component {
     document.cookie = cname + "=" + cvalue + "; " + expires
   }
   Login = () => {
-    $.ajax({
-      url: '/user',
-      type: 'POST',
-      dataType: 'json',
-      data: {user: this.user.value,password:base64.Base64.encode(this.psd.value)}
-    })
-    .done((data)=> {
-      if(data.login){
-        this.props.isLogin.setrvalue(() => {
-          this.setState({ isLogin: true })
-        })
-        this.setCookie('user',data.user)
-        this.setCookie('psd',data.psd)
-        this.setCookie('Smanager',data.Smanager)
-        return true
-      }
-      this.setState({snackopen:true,snackmsg:'账号或密码错误'})
-      return false
-    })
-    .fail(function(e) {
-      console.log(e);
-      return false
+    fetch('/Login',{
+      method:'POST',
+      body:JSON.stringify({user:this.user.value,psd:this.psd.value}),
+      headers: {
+        "Content-Type": "application/json",
+        "xhrFields": { withCredentials: true }
+      },
+    }).then((response)=>{
+      response.json().then((data) => {
+        if(data.error.length <= 0){
+          this.props.isLogin.setrvalue(() => {
+            this.setState({ isLogin: true })
+          })
+          this.setCookie('user', data.user)
+          this.setCookie('psd', data.psd)
+          this.setCookie('Smanager', data.Smanager)
+          return true
+        }
+        this.setState({ snackopen: true, snackmsg: '账号或密码错误' })
+        return false
+      })
     })
   }
   render(){
+    console.log(this.state.isLogin)
     const classes = this.props.classes
     if (this.state.isLogin) {
       return (

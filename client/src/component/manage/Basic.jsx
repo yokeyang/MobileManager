@@ -22,7 +22,6 @@ import TrendingFlat from 'material-ui-icons/TrendingFlat';
 import LinearScale from 'material-ui-icons/LinearScale';
 var socket = io.connect('http://localhost:3002');
 
-
 const columnData = [
   { id: 'name', numeric: false, disablePadding: true, label: '姓名' },
   { id: 'tel', numeric: true, disablePadding: false, label: '电话' },
@@ -108,17 +107,27 @@ class BasicTable extends Component {
       snackopen:false
     };
   }
-  fetch = () =>{
-    AjaxAction('/getdata','POST','json',null,
-      (data)=>{
+  getDatas = (status = 'all') =>{
+    fetch('getData',{
+      method:"post",
+      body:JSON.stringify({status:status}),
+      headers: {
+        "Content-Type": "application/json"
+      },
+    }).then((response)=>{
+      response.json().then((data) => {
+        console.log(data.datas)
         this.setState({
-          data:data.result.sort((a, b) => (a.tel < b.tel ? -1 : 1))
+          data: data.datas.sort((a, b) => (a.tel < b.tel ? -1 : 1))
         })
-      }
-    )
+      })
+    })
   }
   componentDidMount(){
-    console.log(this.fetch())
+    this.getDatas('all')
+  }
+  handleStatusSelect = (status) => {
+    this.getDatas(status)
   }
   handleRequestSort = (event, property) => {
     const orderBy = property;
@@ -232,16 +241,16 @@ class BasicTable extends Component {
         <GridList cols = {10}>
           <GridListTile cols = "4" rows = "1" style = {{height:'auto'}}>
             <GridList>
-              <GridListTile cols = "1" rows = "1" style = {{height:'auto'}}>
+              <GridListTile onClick = {this.handleStatusSelect.bind(null,'all')} cols = "1" rows = "1" style = {{height:'auto'}}>
                 <StatusPage title = "订单总数" Status = {data.length} Color = "#2196F3" />
               </GridListTile>
-              <GridListTile cols = "1" rows = "1" style = {{height:'auto'}}>
+              <GridListTile onClick={this.handleStatusSelect.bind(null,'waiting')} cols = "1" rows = "1" style = {{height:'auto'}}>
                 <StatusPage title = "待打印" Status = {data.filter((item) => {return item.finish == 0}).length} Color = "#EF5350" />
               </GridListTile>
-              <GridListTile cols = "1" rows = "1" style = {{height:'auto'}}>
+              <GridListTile onClick={this.handleStatusSelect.bind(null,'finish')} cols = "1" rows = "1" style = {{height:'auto'}}>
                 <StatusPage title = "已完成" Status = {data.filter((item) => {return item.finish == 1}).length} Color = "#8BC34A" />
               </GridListTile>
-              <GridListTile cols = "1" rows = "1" style = {{height:'auto'}}>
+              <GridListTile onClick={this.handleStatusSelect.bind(null,'doing')} cols = "1" rows = "1" style = {{height:'auto'}}>
                 <StatusPage title = "正在打印" Status = {data.filter((item) => {return item.finish == 2}).length} Color = "#2196F3" />
               </GridListTile>
             </GridList>

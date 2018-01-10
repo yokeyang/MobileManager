@@ -14,7 +14,7 @@ server.listen(3002)
 var dboption = {
   host: "localhost",
   user: "root",
-  password: "218906",
+  password: "yang218906",
   database:"Mobile"
 }
 var insert = (res) =>{
@@ -29,11 +29,11 @@ var insert = (res) =>{
     })
   })
 }
-var select = () =>{
+var select = (sql) =>{
   var promise = new Promise(function(resolve, reject){
     var con = mysql.createConnection(dboption)
     con.connect()
-    con.query("SELECT * FROM userInfo", function (err, result, fields) {
+    con.query(sql, function (err, result, fields) {
       if (err) throw err
       resolve(result)
     })
@@ -62,11 +62,25 @@ app.post('/postText',(req,res)=>{
   res.json({post:true})
 })
 app.post('/getdata',(req,res) =>{
-  select().then(function (value) {
-    res.json({result:value})
+  let sql = 'SELECT * FROM userinfo'
+  switch (req.body.status) {
+    case 'all':
+      sql = 'SELECT * FROM userinfo'  
+      break;
+    case 'waiting':
+      sql = `SELECT * FROM userinfo where finish = 0`
+      break;
+    case 'finish':
+      sql = `SELECT * FROM userinfo where finish = 1`
+      break;
+    default:
+      break;
+  }
+  select(sql).then(function (value) {
+    res.json({ result: value })
   }, function (value) {
     return value
-  })
+  })  
 })
 
 app.post('/user', (req,res)=>{
@@ -74,7 +88,7 @@ app.post('/user', (req,res)=>{
   con.connect()
   con.query(`select * from manager where user = '${req.body.user}'`,(err, result, fields)=>{
     if(result.length){
-      if(Base64.decode(req.body.password) == Base64.decode(result[0].password)){
+      if(Base64.decode(req.body.password) == result[0].password){
         res.json({login:true,user:result[0].user,psd:result[0].password,Smanager:result[0].Smanager})
         return true
       }

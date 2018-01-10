@@ -37,7 +37,8 @@ const isLogin = {
   user: checkCookie('user'),
   Smanager:checkCookie('Smanager'),
   setrvalue(cb){
-    setTimeout(cb,10)
+    console.log(cb)
+    setTimeout(cb,1)
     return this.user
   }
 }

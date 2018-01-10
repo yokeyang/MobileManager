@@ -24,7 +24,8 @@ class PostPage extends Component{
       snackopen:false,
       snackmsg:'',
       diopen:false,
-    }
+      sbt_status:'none'
+    };
   }
 
   saveCallBack = (base64) =>{
@@ -52,24 +53,29 @@ class PostPage extends Component{
     let file = this.state.imgUrl;
     console.log(file);
     if(file.length < 0){
-      this.setState({snackopen:true,snackmsg:'请选择图片'})
-      return false
+      this.setState({snackopen:true,snackmsg:'请选择图片'});
+      return false;
     }
-    this.fetch({
-      url: '/postimg',
-      data: {file:file,name:this.ipt.files[0].name},
-      type: "Post",
-      dataType:'json'
-    })
+    try{
+      this.fetch({
+        url: '/postimg',
+        data: {file:file,name:this.ipt.files[0].name},
+        type: "Post",
+        dataType:'json'
+      });
+    }catch(error){
+      alert("something wrong");
+    }
   }
 
+
   onTextUpdate = () =>{
-    this.onFileUpload()
+    this.onFileUpload();
     var props = ['name','tel','address'];
     for(let item of props){
       if(!this.check({prop:item})){
-        console.log(!this.check({prop:item}))
-        return false
+        console.log(!this.check({prop:item}));
+        return false;
       }
     }
     var data = {
@@ -78,65 +84,73 @@ class PostPage extends Component{
       address:this.address.value,
       kind:this.state.kind,
       imgUrl:this.state.imgUrl[0]
-    }
+    };
     this.fetch({
       url: '/postText',
       type: 'POST',
       dataType: 'json',
       data: data,
-    })
+    });
   }
+
   fetch = (option) =>{
     $.ajax(option)
     .done((e)=>{
       if(option.url === '/postText'){
-        history.push({pathname:'/login'})
+        history.push({pathname:'/login'});
       }
-      let imgUrl = this.state.imgUrl
+      let imgUrl = this.state.imgUrl;
       if(imgUrl.length <= 0){
-        imgUrl.push(e.path)
+        imgUrl.push(e.path);
         this.setState({ imgUrl });
       }
-      this.setState({snackopen:true,snackmsg:'提交/上传成功'})
-      return true
-    })
+      this.setState({snackopen:true,snackmsg:'提交/上传成功'});
+      return true;
+    });
   }
+
   handleSnackClose = () =>{
-    this.setState({snackopen:false})
+    this.setState({snackopen:false});
   }
+
   changePhone = (name) =>event =>{
-    this.setState({[name]:event.target.value})
+    this.setState({[name]:event.target.value});
+    console.log(event.target.value)
   }
+
   handleDialogClose = () =>{
-    this.setState({diopen:false})
+    this.setState({diopen:false});
   }
+
   check = ({prop = 'name'}) =>{
     if(this[prop].value === '' || this[prop].value === null){
-      this.setState({snackopen:true,snackmsg:`${this[prop].getAttribute('name')}不能为空`})
-      return false
+      this.setState({snackopen:true,snackmsg:`${this[prop].getAttribute('name')}不能为空`});
+      return false;
     }
     if(this.state.imgUrl[0] === '' || this.state.imgUrl[0] === null){
-      this.setState({snackopen:true,snackmsg:`图片不能为空`})
-      return false
+      this.setState({snackopen:true,snackmsg:`图片不能为空`});
+      return false;
     }else if(this.state.kind === null || this.state.kind === ''){
-      this.setState({snackopen:true,snackmsg:`手机型号不能为空`})
-      return false
+      this.setState({snackopen:true,snackmsg:`手机型号不能为空`});
+      return false;
     }else if(!/^[0-9]{11,11}$/.test(this.tel.value)){
-      this.setState({snackopen:true,snackmsg:`输入正确的电话号码`})
-      return false
+      this.setState({snackopen:true,snackmsg:`输入正确的电话号码`});
+      return false;
     }
-    return true
+    return true;
   }
+
   componentDidMount(){
   }
-  render(){
+
+  render = () => {
     var imgUrl = this.state.imgUrl;
     return(
-      <GridList cols = {10} cellHeight = {'auto'}>
+      <GridList cols = {10} cellHeight = {'auto'} style = {{margin:0}} >
         <GridListTile cols = "10">
-          <h1 style = {{textAlign:'center'}}>DIY手机壳</h1>
+          <h1 style = {{textAlign:'center',width:'50%'}}>DIY手机壳</h1>
         </GridListTile>
-        <GridListTile cols = "5">        
+        <GridListTile cols = "5">
           <form noValidate autoComplete = "off" className = "inner">
             <TextField required label="姓名" name = "姓名" margin = "normal" inputRef = {(name)=>this.name = name} />
             <TextField required type = 'number' label="电话" name = "电话" margin = "normal" inputRef = {(tel)=>this.tel = tel} />
@@ -144,66 +158,65 @@ class PostPage extends Component{
             <FormControl margin = "normal">
               <InputLabel htmlFor="kind">选择手机型号</InputLabel>
               <Select onChange = {this.changePhone('kind')} value = {this.state.kind} input = {<Input id="kind" />}>
-                <MenuItem value = "iphone5">
+                <MenuItem value = "iphone5" name = "i5">
                   iphone5/5s/se
                 </MenuItem>
-                <MenuItem value = "iphone6">
+                <MenuItem value = "iphone6" name = "i6">
                   iphone6/6s/7
                 </MenuItem>
-                <MenuItem value = "iphone6p">
+                <MenuItem value = "iphone6p" name = "i6p">
                   iphone6p/7p
                 </MenuItem>
-                <MenuItem value = "xiaomi6">
+                <MenuItem value = "xiaomi6" name = "m6">
                   小米6
                 </MenuItem>
-                <MenuItem value = "pixel">
+                <MenuItem value = "pixel" name = "gp">
                   google pixel
                 </MenuItem>
               </Select>
             </FormControl>
-            <Button raised onClick = {this.onFileUpload}>提交</Button>
-
-            <Snackbar
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              open={this.state.snackopen}
-              autoHideDuration={6000}
-              onRequestClose={this.handleSnackClose}
-              SnackbarContentProps={{
-                'aria-describedby': 'message-id',
-              }}
-              message={<span id="message-id">{this.state.snackmsg}</span>}
-              action={[
-                <Button key="undo" color="accent" dense onClick={this.handleSnackClose}>
-                  知道了
-                </Button>,
-                <IconButton
-                  key="close"
-                  aria-label="Close"
-                  color="inherit"
-                  onClick={this.handleSnackClose}
-                >
-                  <CloseIcon />
-                </IconButton>,
-              ]}
-            />
+            <FormControl margin = "normal">
+              <input type="file" id = "ipt" style = {{display:'none'}} accept="jpg,jpeg,JPG,JPEG,png,PNG" onClick = {this.FileCut} ref = {(input) => {this.ipt = input}} defaultValue="选择图片" />
+              <label htmlFor="ipt">
+                <Button raised component="span">
+                  Upload
+                </Button>
+              </label>
+            </FormControl>
+            <Button raised onClick = {this.onTextUpdate}>提交</Button>
           </form>
         </GridListTile>
-        <GridListTile cols = "5">
-          <FormControl>
-            <input type="file" id = "ipt" style = {{display:'none'}} accept="jpg,jpeg,JPG,JPEG,png,PNG" onClick = {this.FileCut} ref = {(input) => {this.ipt = input}} defaultValue="选择图片" />
-            <label htmlFor="ipt">
-              <Button raised component="span">
-                Upload
-              </Button>
-            </label>
-          </FormControl>
+        <GridListTile cols = "4">
           <div id="canvas-box" ref = {(input) => {this.canvas_box = input}}></div>
-          <input onClick = {this.saveCallBack} type="button" ref = {(input) => {this.save = input}} defaultValue = "完成" />
+          <input style = {{display:this.state.sbt_status}} onClick = {this.saveCallBack} type="button" ref = {(input) => {this.save = input}} defaultValue = "完成" />
           <div ref = {(input) => {this.base64 = input}}></div>
         </GridListTile>
+        <Snackbar
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          open={this.state.snackopen}
+          autoHideDuration={6000}
+          onRequestClose={this.handleSnackClose}
+          SnackbarContentProps={{
+            'aria-describedby': 'message-id',
+          }}
+          message={<span id="message-id">{this.state.snackmsg}</span>}
+          action={[
+            <Button key="undo" color="accent" dense onClick={this.handleSnackClose}>
+              知道了
+            </Button>,
+            <IconButton
+              key="close"
+              aria-label="Close"
+              color="inherit"
+              onClick={this.handleSnackClose}
+            >
+              <CloseIcon />
+            </IconButton>,
+          ]}
+        />
       </GridList>
     )
   }
