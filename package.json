@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "concurrently \"npm run server\" \"react-scripts start\"",
     "server": "supervisor start-server.js",
     "client": "node start-client.js"
   },
@@ -20,10 +20,17 @@
     "multer": "^2.0.0-alpha.6",
     "mysql": "^2.14.1",
     "qiniu": "^7.0.8",
-    "react": "^16.0.0",
+    "react": "^15.6.1",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
-    "supervisor": "^0.12.0"
+    "supervisor": "^0.12.0",
+    "material-ui": "^1.0.0-beta.12",
+    "material-ui-icons": "^1.0.0-beta.10",
+    "prop-types": "^15.5.10",
+    "react-scripts": "1.0.13",
+    "js-base64": "^2.3.2",
+    "react-dom": "^15.6.1",
+    "socket.io": "^2.0.3"
   },
   "dependencies": {
     "crypto": "^1.0.1",

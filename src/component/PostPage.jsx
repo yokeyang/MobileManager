@@ -7,42 +7,38 @@ import Select from 'material-ui/Select';
 import Input, { InputLabel } from 'material-ui/Input';
 import { MenuItem } from 'material-ui/Menu';
 import Button from 'material-ui/Button';
+import Modal from 'material-ui/Modal';
 import { FormControl} from 'material-ui/Form';
-import Snackbar from 'material-ui/Snackbar';
-import IconButton from 'material-ui/IconButton';
-import CloseIcon from 'material-ui-icons/Close';
+import IconButton from 'material-ui/IconButton'
+import CloseIcon from 'material-ui-icons/Close'
+import Snackbar from 'material-ui/Snackbar'
 import { GridList, GridListTile, GridListTileBar } from 'material-ui/GridList';
 import Dialog, {DialogActions,DialogContent} from 'material-ui/Dialog';
-import ZmCanvasCrop from './CutImage';
-var c;
+import Getimg from './Getimg';
 class PostPage extends Component{
   constructor(props){
     super(props);
     this.state = {
       kind:'',
-      imgUrl:'',
+      imgUrl:[],
       snackopen:false,
       snackmsg:'',
       diopen:false,
-      sbt_status:'none'
+      sbt_status:'none',
+      modal_open:false
     };
   }
 
-  saveCallBack = (base64) =>{
-    if(typeof(base64) === 'string'){
-      this.setState({imgUrl:base64})
-    }
+  modal_open = () =>{
+    this.setState({modal_open:true})
+  }
+
+  modal_close = () =>{
+    this.setState({modal_open:false})
   }
 
   componentDidMount = () =>{
-    c = new ZmCanvasCrop({
-      fileInput: this.ipt,
-      saveBtn: this.save,
-      box_width: 200,  //剪裁容器的最大宽度
-      box_height: 300, //剪裁容器的最大高度
-      min_width: 300,  //要剪裁图片的最小宽度
-      min_height: 300  //要剪裁图片的最小高度
-    },this.saveCallBack);
+    console.log(this.save)
   }
 
   FileCut = () =>{
@@ -122,6 +118,10 @@ class PostPage extends Component{
     this.setState({diopen:false});
   }
 
+  onDelectimg = () => {
+    this.setState({imgUrl:[]})
+  }
+
   check = ({prop = 'name'}) =>{
     if(this[prop].value === '' || this[prop].value === null){
       this.setState({snackopen:true,snackmsg:`${this[prop].getAttribute('name')}不能为空`});
@@ -140,17 +140,15 @@ class PostPage extends Component{
     return true;
   }
 
-  componentDidMount(){
-  }
 
   render = () => {
-    var imgUrl = this.state.imgUrl;
+    let imgUrl = this.state.imgUrl;
     return(
       <GridList cols = {10} cellHeight = {'auto'} style = {{margin:0}} >
-        <GridListTile cols = "10">
-          <h1 style = {{textAlign:'center',width:'50%'}}>DIY手机壳</h1>
+        <GridListTile cols = {10}>
+          <h1 style = {{textAlign:'center'}}>DIY手机壳</h1>
         </GridListTile>
-        <GridListTile cols = "5">
+        <GridListTile cols = {10}>
           <form noValidate autoComplete = "off" className = "inner">
             <TextField required label="姓名" name = "姓名" margin = "normal" inputRef = {(name)=>this.name = name} />
             <TextField required type = 'number' label="电话" name = "电话" margin = "normal" inputRef = {(tel)=>this.tel = tel} />
@@ -176,21 +174,48 @@ class PostPage extends Component{
               </Select>
             </FormControl>
             <FormControl margin = "normal">
-              <input type="file" id = "ipt" style = {{display:'none'}} accept="jpg,jpeg,JPG,JPEG,png,PNG" onClick = {this.FileCut} ref = {(input) => {this.ipt = input}} defaultValue="选择图片" />
-              <label htmlFor="ipt">
-                <Button raised component="span">
-                  Upload
+              <Button raised component="span" onClick = {this.modal_open} style = {{width:'20%'}}>
+                上传图片
+              </Button>
+              <GridList cellHeight={200} spacing={1} style = {{transform: 'translateZ(0)'}}>
+              {imgUrl.map((item,i) => (
+                <GridListTile key={i} height = {'auto'}>
+                  <img src={item} alt='图片' onClick = {() =>{
+                    this.setState({diopen:true})
+                  }} />
+                  <GridListTileBar
+                    title='选中图片'
+                    titlePosition="top"
+                    actionIcon={
+                      <IconButton onClick = {this.onDelectimg}>
+                        <CloseIcon color = "accent" />
+                      </IconButton>
+                    }
+                    actionPosition="right"
+                  />
+                </GridListTile>
+              ))}
+            </GridList>
+            <Dialog open={this.state.diopen} onRequestClose={this.handleDialogClose} maxWidth = "md">
+            <DialogContent>
+              <img src = {this.state.imgUrl[0]} />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={this.handleDialogClose} color="primary">
+                  好的
                 </Button>
-              </label>
+              </DialogActions>
+            </Dialog>
             </FormControl>
             <Button raised onClick = {this.onTextUpdate}>提交</Button>
           </form>
         </GridListTile>
-        <GridListTile cols = "4">
-          <div id="canvas-box" ref = {(input) => {this.canvas_box = input}}></div>
-          <input style = {{display:this.state.sbt_status}} onClick = {this.saveCallBack} type="button" ref = {(input) => {this.save = input}} defaultValue = "完成" />
-          <div ref = {(input) => {this.base64 = input}}></div>
-        </GridListTile>
+        <Modal
+          open={this.state.modal_open}
+          onClose={this.modal_close}
+        >
+          <Getimg imgUrl = {this.state.imgUrl} />
+        </Modal>
         <Snackbar
           anchorOrigin={{
             vertical: 'bottom',
@@ -213,7 +238,7 @@ class PostPage extends Component{
               color="inherit"
               onClick={this.handleSnackClose}
             >
-              <CloseIcon />
+            <CloseIcon />
             </IconButton>,
           ]}
         />

@@ -71,11 +71,15 @@ ZmCanvasCrop.prototype = {
 		}
 
 		function readFile(){
-			var file = this.files[0];
-		    if(!/image\/\w+/.test(file.type)){
-		        alert("文件必须为图片！");
-		        return false;
-		    }
+			try {
+				var file = this.files[0];
+				if(!/image\/\w+/.test(file.type)){
+					alert("文件必须为图片！");
+					return false;
+				}				
+			} catch (error) {
+				return false
+			}
 		    var reader = new FileReader();
 		    reader.readAsDataURL(file);
 		    reader.onload = function(e){
@@ -386,7 +390,7 @@ ZmCanvasCrop.prototype = {
 			}
 		}
 		var base64Url = $result[0].toDataURL('image/jpeg');
-		self.saveCallback && self.saveCallback(base64Url);
+		self.saveCallback(base64Url);
 		return base64Url;
 	},
 
