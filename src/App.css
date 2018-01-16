@@ -1,43 +1,46 @@
-/*.home{
-  padding: 0 2rem;
-}*/
-body{
-  background-color: #fafafa;
+@import '~antd/dist/antd.css';
+#components-layout-demo-custom-trigger,.trigger {
+    font-size: 18px;
+    line-height: 64px;
+    padding: 0 24px;
+    cursor: pointer;
+    transition: color .3s;
 }
-#canvas-box{
-  min-width: 400px;
-  min-height: 300px;
-  position: relative;
-  -webkit-user-select:none;
-  -moz-user-select:none;
-  -o-user-select:none;
-  user-select:none
+
+#components-layout-demo-custom-trigger,.trigger:hover {
+    color: #1890ff;
 }
-#canvas-box .overlay{
-  position: absolute;
-  left: 0;
-  top: 0;
-  cursor: move;
-  border:1px solid #69f;
+
+#components-layout-demo-custom-trigger,.logo {
+    height: 32px;
+    background: inherit;
+    margin: 16px;
 }
-#canvas-box div,#canvas-box canvas{
-  -webkit-user-select:none;
-  -moz-user-select:none;
-  -o-user-select:none;
-  user-select:none
+.ant-layout{
+  min-height: 100vh;
 }
-a{
-  text-decoration: none;
+.gutter-box{
+  padding: 0.5rem;
 }
-.inner{
-  max-width: 540px;
-  margin: 0 auto;
+.y-center {
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: column;
+  -ms-flex-align: center;
+  align-items: center;
 }
-img{
-  width: 100% !important;
+.mr-m {
+  margin-right: 1rem !important;
 }
-.MuiGridListTile-root-71{
-  height: auto !important;
+.text-2x {
+  font-size: 2rem;
+}
+.y-right{
+  margin-left: auto;
+}
+.table_title{
+  display: flex;
+  flex-direction: row;
+}
+.table_title_button{
+  margin-left: auto;
 }

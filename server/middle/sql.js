@@ -6,7 +6,7 @@ const md5 = require('./md5')
 const pool = mysql.createPool({
     host: '127.0.0.1',
     user: 'root',
-    password: 'yang218906',
+    password: '218906',
     database: 'Mobile'
 })
 function con(sql) {
@@ -16,7 +16,7 @@ function con(sql) {
             resolve(results)
             if (error) throw error;
         })
-        // }) 
+        // })
     })
 }
 exports.con = con
@@ -33,7 +33,7 @@ exports.checkLogin = async (ctx, next) => {
             await next()
         } else {
             return ctx.body = { error: 'password error' }
-        }        
+        }
     } catch (error) {
         return ctx.body = error.message
     }
@@ -75,7 +75,7 @@ exports.getData = async (ctx, next) => {
                 sql = 'SELECT * FROM userinfo where finish = 0'
                 break;
             case 'finish':
-                sql = 'SELECT * FROM userinfo where finish = 1'            
+                sql = 'SELECT * FROM userinfo where finish = 1'
                 break;
             default:
                 break;
