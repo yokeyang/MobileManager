@@ -1,5 +1,10 @@
 import React from 'react'
 import { Table, Icon, Form, Divider, Input, Popconfirm,Modal } from 'antd'
+import { connect } from 'react-redux'
+import { changeData } from '../action/change-data'
+import FetchData from '../reducer/FetchData'
+import { fetchData } from '../action/fetch-data'
+import { httprequest } from '../api/api'
 const FormItem = Form.Item
 const confirm = Modal.confirm
 
@@ -16,6 +21,7 @@ const EditableCell = ({ editable, value, onChange }) => (
 class DataTable extends React.Component {
   constructor(props){
     super(props)
+    console.log(this.props)
     this.columns = [{
       title: '姓名',
       dataIndex: 'name',
@@ -69,6 +75,7 @@ class DataTable extends React.Component {
       },
     }];
     this.state = {
+      editable:false,
       bordered: false,
       loading: false,
       pagination: true,
@@ -76,9 +83,11 @@ class DataTable extends React.Component {
       showHeader,
       rowSelection: {},
       scroll: undefined,
-      data:[],
       selectedRowKeys:[]
     }
+    this.props.getData((data)=>{
+      this.cacheData = data.map(key => [{...key}])
+    })
   }
   onSelectChange = (selectedRowKeys) => {
     this.setState({ selectedRowKeys });
@@ -109,13 +118,13 @@ class DataTable extends React.Component {
     });
   }
   handleChange = (value, key, column) => {
-    const newData = [...this.state.data];
+    const newData = [...this.props.data];
     const target = newData.filter(item => key === item.key)[0];
     if (target) {
       target[column] = value;
-      this.setState({ data: newData });
+      this.setState({ editable: true })
+      console.log(this.cacheData)
     }
-    this.ChangeStatue(this.state.data)
   }
   handleDelete = (key) => {
     console.log(key)
@@ -124,33 +133,33 @@ class DataTable extends React.Component {
     console.log(key)
   }
   edit = (key) => {
-    const newData = [...this.state.data];
-    const target = newData.filter(item => key === item.key)[0];
-    if (target) {
-      target.editable = true;
-      this.setState({ data: newData });
+    this.newData = [...this.props.data];
+    console.log(this.newData)
+    this.target = this.newData.filter(item => key === item.key)[0];
+    if (this.target) {
+      this.target.editable = true;
+      this.setState({editable :this.target.editable})
+      this.props.changeData(key,this.target)
     }
-    this.ChangeStatue(this.state.data)
   }
   save = (key) => {
-    const newData = [...this.state.data];
-    const target = newData.filter(item => key === item.key)[0];
+    const newData = this.newData
+    const target = this.target
     if (target) {
       delete target.editable;
-      this.setState({ data: newData });
-      this.cacheData = newData.map(item => ({ ...item }));
+      this.setState({ editable: this.target.editable })
+      this.cacheData = newData.map(item => ({ ...item }))
     }
-    this.ChangeStatue(this.state.data)
+    this.props.changeData(key,target)
   }
   cancel = (key) => {
-    const newData = [...this.state.data];
-    const target = newData.filter(item => key === item.key)[0];
+    const newData = this.newData
+    const target = this.target
     if (target) {
-      Object.assign(target, this.cacheData.filter(item => key === item.key)[0]);
+      Object.assign(target, this.cacheData.filter(item => item[0].key === key)[0][0]);
       delete target.editable;
-      this.setState({ data: newData });
+      this.setState({ editable: this.target.editable })      
     }
-    this.ChangeStatue(this.state.data)
   }
   ChangeStatue = (data) =>{
     this.props.all(data.length)
@@ -158,19 +167,8 @@ class DataTable extends React.Component {
     this.props.doing(data.filter((item) => {return item.finish == 2}).length)
     this.props.finish(data.filter((item) => {return item.finish == 1}).length)
   }
+
   componentDidMount = () =>{
-    fetch('/getData',{
-      method:'post'
-    }).then((response) => {
-      response.json().then((datas) => {
-        datas.datas.map((item) => {
-          item.key = item.id
-        })
-        this.setState({data:datas.datas})
-        this.cacheData = datas.datas.map(item => ({ ...item }))
-        this.ChangeStatue(this.state.data)
-      })
-    })
     this.setState({
       title:() => {return(
         <div className = "table_title">
@@ -185,6 +183,7 @@ class DataTable extends React.Component {
     })
   }
   render() {
+    
     const { state, selectedRowKeys } = this.state;
     const rowSelection = {
       selectedRowKeys,
@@ -193,9 +192,32 @@ class DataTable extends React.Component {
     const hasSelected = selectedRowKeys.length > 0
     return (
       <div>
-        <Table {...this.state} rowSelection={rowSelection} columns={this.columns} dataSource={this.state.data} />
+        <Table {...this.state} rowSelection={rowSelection} columns={this.columns} dataSource={this.props.data} />
       </div>
     );
   }
 }
-export default DataTable
+
+
+const mapStateToProps = state => {
+  return {data:state.FetchData}
+}
+const mapDispatchToProps = dispatch => {
+  return {
+    getData: (cb) => {
+      httprequest('/getData').then((e) => {
+        dispatch(fetchData(e))
+        cb(e)
+      })
+    },
+    changeData: (key,target) => {
+      console.log(key)
+      dispatch(changeData(key,target))
+    }
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DataTable)

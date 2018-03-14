@@ -6,7 +6,7 @@ class Dashboard extends React.Component{
   constructor(props){
     super(props)
     this.state = {
-      percent:100,
+      percent:10,
       all:0,
       doing:0,
       finish:0,

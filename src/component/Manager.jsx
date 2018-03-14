@@ -1,19 +1,16 @@
 import React,{Component} from 'react'
 import { Layout, Menu, Icon } from 'antd'
-import Dashboard from './Dashboard'
+import { connect } from 'react-redux'
+import { withRouter,Link } from 'react-router-dom'
+import { openMenu } from '../action/open-menu'
 const { Header, Sider, Content,Card } = Layout
 
 class Manager extends React.Component {
     constructor(props){
         super(props)
-        this.state = {
-            collapsed: false,
-        };
     }
     toggle = () => {
-        this.setState({
-        collapsed: !this.state.collapsed,
-        });
+        this.props.dispatch(openMenu(!this.props.open))
     }
     render() {
         return (
@@ -21,7 +18,7 @@ class Manager extends React.Component {
                 <Sider
                     trigger={null}
                     collapsible
-                    collapsed={this.state.collapsed}
+                    collapsed={this.props.open}
                 >
                     <div className="logo" />
                         <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
@@ -43,12 +40,12 @@ class Manager extends React.Component {
                     <Header style={{ background: '#fff', padding: 0 }}>
                         <Icon
                           className="trigger"
-                          type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
+                          type={this.props.open ? 'menu-unfold' : 'menu-fold'}
                           onClick={this.toggle}
                         />
                     </Header>
                     <Content style={{ margin: '24px 16px', padding: 24, background: 'inherit', minHeight: 280 }}>
-                      <Dashboard />
+                      {this.props.children}
                     </Content>
                 </Layout>
             </Layout>
@@ -56,4 +53,10 @@ class Manager extends React.Component {
     }
 }
 
-export default Manager
+function select(state) {
+    return {
+        open: state.OpenMenu,
+    }
+}
+
+export default connect(select)(Manager)
